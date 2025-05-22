@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'hatch_messaging',  # Register the app
+    'rest_framework',  # Django REST framework
+    'messaging',  
 ]
 
 MIDDLEWARE = [
