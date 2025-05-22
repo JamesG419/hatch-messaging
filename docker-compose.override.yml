@@ -5,3 +5,9 @@ services:
   web:
     env_file:
       - .env.dev
+  redis:
+    env_file:
+      - .env.dev
+  celery:
+    env_file:
+      - .env.dev

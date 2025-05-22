@@ -21,5 +21,22 @@ services:
       - "8000:8000"
     depends_on:
       - db
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+  celery:
+    build: .
+    command: bash -c "celery -A hatch_messaging worker --loglevel=info"
+    volumes:
+      - .:/code
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER}
+      - CELERY_RESULT_BACKEND=${CELERY_BACKEND}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DEBUG=${DEBUG}
+    depends_on:
+      - web
+      - redis
 volumes:
   postgres_data:
