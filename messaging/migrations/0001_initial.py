@@ -8,54 +8,123 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Conversation',
+            name="Conversation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('last_activity', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("last_activity", models.DateTimeField(auto_now=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Participant',
+            name="Participant",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('phone', models.CharField(blank=True, max_length=20, null=True, unique=True)),
-                ('email', models.EmailField(blank=True, max_length=254, null=True, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "phone",
+                    models.CharField(blank=True, max_length=20, null=True, unique=True),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, null=True, unique=True
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sender', models.CharField(max_length=255)),
-                ('recipient', models.CharField(max_length=255)),
-                ('message_type', models.CharField(choices=[('SMS', 'SMS'), ('MMS', 'MMS'), ('EMAIL', 'Email')], max_length=10)),
-                ('direction', models.CharField(choices=[('INCOMING', 'Incoming'), ('OUTGOING', 'Outgoing')], max_length=10)),
-                ('body', models.TextField()),
-                ('attachments', models.JSONField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('QUEUED', 'Queued'), ('SENDING', 'Sending'), ('SENT', 'Sent'), ('FAILED', 'Failed'), ('RECIEVED', 'Received')], max_length=10)),
-                ('last_error', models.TextField(blank=True, null=True)),
-                ('timestamp', models.DateTimeField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('conversation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='messaging.conversation')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sender", models.CharField(max_length=255)),
+                ("recipient", models.CharField(max_length=255)),
+                (
+                    "message_type",
+                    models.CharField(
+                        choices=[("SMS", "SMS"), ("MMS", "MMS"), ("EMAIL", "Email")],
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "direction",
+                    models.CharField(
+                        choices=[("INCOMING", "Incoming"), ("OUTGOING", "Outgoing")],
+                        max_length=10,
+                    ),
+                ),
+                ("body", models.TextField()),
+                ("attachments", models.JSONField(blank=True, null=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("QUEUED", "Queued"),
+                            ("SENDING", "Sending"),
+                            ("SENT", "Sent"),
+                            ("FAILED", "Failed"),
+                            ("RECIEVED", "Received"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("last_error", models.TextField(blank=True, null=True)),
+                ("timestamp", models.DateTimeField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "conversation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="messaging.conversation",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='conversation',
-            name='participant_1',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='participant_1_conversations', to='messaging.participant'),
+            model_name="conversation",
+            name="participant_1",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="participant_1_conversations",
+                to="messaging.participant",
+            ),
         ),
         migrations.AddField(
-            model_name='conversation',
-            name='participant_2',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='participant_2_conversations', to='messaging.participant'),
+            model_name="conversation",
+            name="participant_2",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="participant_2_conversations",
+                to="messaging.participant",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='conversation',
-            unique_together={('participant_1', 'participant_2')},
+            name="conversation",
+            unique_together={("participant_1", "participant_2")},
         ),
     ]

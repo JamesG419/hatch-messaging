@@ -5,3 +5,4 @@ djangorestframework
 celery[redis]
 pytest
 pytest-django
+black
