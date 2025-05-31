@@ -4,16 +4,6 @@ from messaging.models import Participant  # Adjust import as needed
 
 
 # test resolve_participant function
-@pytest.fixture
-def participant_1(db):
-    return Participant.objects.create(phone="1234567890", email="test@example.com")
-
-
-@pytest.fixture
-def participant_2(db):
-    return Participant.objects.create(phone="0987654321", email="foo@bar.com")
-
-
 @pytest.mark.django_db
 def test_resolve_participant_by_phone(participant_1):
     participant = resolve_participant(phone="1234567890")
