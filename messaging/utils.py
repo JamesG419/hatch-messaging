@@ -1,4 +1,4 @@
-from messaging.models import Participant
+from messaging.models import Participant, Conversation
 
 def resolve_participant(phone=None, email=None):
     """
@@ -17,3 +17,7 @@ def resolve_participant(phone=None, email=None):
     if phone and email:
         return Participant.objects.filter(phone=phone, email=email).first()
     raise ValueError("Either phone or email must be provided to resolve a participant.")
+
+def resolve_conversation(participant_1, participant_2):
+    conversations = sorted([participant_1.id, participant_2.id])
+    return Conversation.objects.get_or_create(participant_1_id=conversations[0], participant_2_id=conversations[1])

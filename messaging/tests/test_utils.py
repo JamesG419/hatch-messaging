@@ -1,5 +1,5 @@
 import pytest
-from messaging.utils import resolve_participant
+from messaging.utils import resolve_conversation, resolve_participant
 from messaging.models import Participant  # Adjust import as needed
 
 # test resolve_participant function
@@ -45,4 +45,20 @@ def test_resolve_participant_no_args_raises():
     with pytest.raises(Exception):
         resolve_participant()
 
-#test resolve_conversation function
+@pytest.mark.django_db
+def test_resolve_participant_with_both_none():
+    with pytest.raises(ValueError):
+        resolve_participant(phone=None, email=None)
+
+# Tests for resolve_conversation
+@pytest.mark.django_db
+def test_resolve_conversation_symmetry(participant_1, participant_2):
+    conv1 = resolve_conversation(participant_1, participant_2)
+    conv2 = resolve_conversation(participant_2, participant_1)
+    assert conv1[0] == conv2[0]
+
+@pytest.mark.django_db
+def test_resolve_conversation_with_self(participant_1):
+    conv = resolve_conversation(participant_1, participant_1)
+    assert conv is not None
+
