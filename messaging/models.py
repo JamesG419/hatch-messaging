@@ -12,8 +12,8 @@ class Conversation(models.Model):
     '''Conversation model to represent a messaging conversation.
     Each conversation can have multiple messages and 2 participants.
     '''
-    participant_1 = models.ForeignKey
-    participant_2 = models.CharField(max_length=255)
+    participant_1 = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name='participant_1_conversations')
+    participant_2 = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name='participant_2_conversations')
     last_activity = models.DateTimeField(auto_now=True)
 
     class Meta:
