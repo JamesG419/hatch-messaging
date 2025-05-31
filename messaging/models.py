@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 class Participant(models.Model):
 
-    phone_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
 
 

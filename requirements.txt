@@ -3,3 +3,5 @@ psycopg2-binary>=2.9
 djangorestframework
 
 celery[redis]
+pytest
+pytest-django
