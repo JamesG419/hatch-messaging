@@ -9,12 +9,13 @@ A messaging service for Hatch
 
 ### Quick Start
 
-1. Build and start the services:
+1. Copy the `env.sample`, rename to `.env.dev` and fill in the placeholders
+2. Build and start the services:
    ```bash
-   docker compose up --build
+   docker compose --env-file .env.dev up --build
    ```
-2. The Django app will be available at http://localhost:8000
-3. The Postgres database will be available at localhost:5432
+3. The Django app will be available at http://localhost:8000
+4. The Postgres database will be available at localhost:5432
 
 ### Local Development (without Docker)
 
