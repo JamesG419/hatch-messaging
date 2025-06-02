@@ -1,9 +1,14 @@
+import uuid
 from django.db import models
 
 
 # Create your models here.
 class Participant(models.Model):
+    """Participant model to represent a user in a conversation.
+    Each participant can have a unique phone number and email.
+    """
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
     email = models.EmailField(unique=True, null=True, blank=True)
 
@@ -13,6 +18,7 @@ class Conversation(models.Model):
     Each conversation can have multiple messages and 2 participants.
     """
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     participant_1 = models.ForeignKey(
         Participant,
         on_delete=models.CASCADE,
@@ -57,7 +63,7 @@ class Message(models.Model):
         ("FAILED", "Failed"),
         ("RECIEVED", "Received"),
     ]
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
     sender = models.CharField(max_length=255)
     recipient = models.CharField(max_length=255)
@@ -71,3 +77,6 @@ class Message(models.Model):
 
     timestamp = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
