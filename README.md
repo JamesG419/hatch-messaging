@@ -25,7 +25,7 @@ A messaging service for Hatch
    source venv/bin/activate
    pip install -r requirements.txt
    ```
-2. Set environment variables for Postgres connection or update `settings.py`.
+2. Set environment variables in `.env.dev`.
 3. Run migrations and start the server:
    ```bash
    python manage.py migrate
@@ -33,6 +33,8 @@ A messaging service for Hatch
    ```
 
 ## Project Structure
+- `docs` - Documentation for the project
+- `messaging` - app code for the messaging API
 - `hatch_messaging/` - Django project and app code
 - `docker-compose.yml` - Multi-service orchestration
 - `Dockerfile` - Django app container
