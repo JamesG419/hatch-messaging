@@ -1,6 +1,5 @@
 import pytest
 from messaging.utils import resolve_conversation, resolve_participant
-from messaging.models import Participant  # Adjust import as needed
 
 
 # test resolve_participant function

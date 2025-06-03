@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.core.validators import validate_email, RegexValidator
 
 
 # Create your models here.
@@ -9,8 +10,21 @@ class Participant(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    email = models.EmailField(unique=True, null=True, blank=True)
+    phone = models.CharField(
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[
+            RegexValidator(
+                regex=r"^\+1\d{10}$",
+                message="Phone number must be a valid US number in the format +1XXXXXXXXXX.",
+            )
+        ],
+    )
+    email = models.EmailField(
+        unique=True, null=True, blank=True, validators=[validate_email]
+    )
 
 
 class Conversation(models.Model):
@@ -65,8 +79,16 @@ class Message(models.Model):
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
-    sender = models.CharField(max_length=255)
-    recipient = models.CharField(max_length=255)
+    sender = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+        related_name="sent_messages",
+    )
+    recipient = models.ForeignKey(
+        Participant,
+        on_delete=models.CASCADE,
+        related_name="received_messages",
+    )
     message_type = models.CharField(max_length=10, choices=MESSAGE_TYPE_CHOICES)
     direction = models.CharField(max_length=10, choices=DIRECTION_CHOICES)
     body = models.TextField()
