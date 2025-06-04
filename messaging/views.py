@@ -11,6 +11,30 @@ from .models import Message, Participant
 
 
 class TextInboundWebhook(APIView):
+    """
+    API endpoint to handle inbound text message webhooks.
+    POST:
+        Receives and processes inbound messages from external messaging providers.
+        Expects a JSON payload with the following fields:
+            - to (str): The recipient's phone number.
+            - from (str): The sender's phone number.
+            - type (str): The type of the message (e.g., 'text').
+            - body (str): The message content.
+            - messaging_provider_id (str): Unique identifier for the message from the provider.
+            - attachments (optional, list): Any attachments included with the message.
+            - timestamp (optional, str): The time the message was sent (ISO 8601 format).
+        Workflow:
+            - Validates required fields.
+            - Parses and defaults the timestamp if not provided.
+            - Prevents duplicate messages based on provider_message_id.
+            - Resolves or creates Participant objects for sender and receiver.
+            - Resolves or creates a Conversation between participants.
+            - Creates a Message record with the provided data.
+        Responses:
+            - 201 Created: Message received and processed successfully.
+            - 200 OK: Duplicate message detected.
+            - 400 Bad Request: Missing required fields or invalid participant data.
+    """
     def post(self, request):
         data  = request.data
 
@@ -81,6 +105,25 @@ class TextInboundWebhook(APIView):
         )
     
 class EmailInboundWebhook(APIView):
+    """
+    APIView to handle inbound email webhooks.
+    This view processes POST requests containing inbound email data, validates required fields,
+    prevents duplicate messages, resolves or creates participants, associates messages with conversations,
+    and stores the message in the database.
+    Methods:
+        post(request):
+            Handles incoming POST requests with email data. Expects the following fields in the request data:
+                - to (str): Recipient email address (required)
+                - from (str): Sender email address (required)
+                - body (str): Email message body (required)
+                - xillio_id (str): Unique provider message ID (required)
+                - attachments (optional): List of attachments
+                - timestamp (optional): ISO-formatted timestamp string
+            Returns:
+                - 201 Created: If the message is successfully processed and stored.
+                - 200 OK: If a duplicate message is detected.
+                - 400 Bad Request: If required fields are missing or participant resolution fails.
+    """
     def post(self, request):
         data  = request.data
 
