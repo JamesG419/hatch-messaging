@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from .utils import resolve_participant, resolve_conversation
 from .models import Message, Participant
-from .serializers import MessageSerializer, ConversationSerializer
+from .serializers import MessageSerializer, MessageCreateSerializer,ConversationSerializer
 from django.shortcuts import get_object_or_404
 from .tasks import send_message
 
@@ -196,5 +196,46 @@ class EmailInboundWebhook(APIView):
             status=status.HTTP_201_CREATED
         )
     
-class Messages(APIView):
-    pass
+class MessageListView(generics.ListAPIView):
+    """
+    APIView to list messages.
+    This view retrieves all messages and returns them in a paginated format.
+    """
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+class MessageDetailView(generics.RetrieveAPIView):
+    """
+    APIView to retrieve a single message by ID.
+    This view returns the details of a specific message.
+    """
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    lookup_field = 'id'
+
+class MessageDeleteView(generics.DestroyAPIView):
+    """
+    APIView to delete a message by ID.
+    This view allows deletion of a specific message.
+    """
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    lookup_field = 'id'
+
+class MessageCreateView(generics.CreateAPIView):
+    """
+    APIView to create a new message.
+    This view allows creation of a new message with the provided data.
+    """
+    
+    def post(self, request):
+        serializer = MessageCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        message = serializer.save()
+        # Trigger the message sending task
+        send_message.delay(message.id)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+            

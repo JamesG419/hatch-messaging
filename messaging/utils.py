@@ -12,11 +12,9 @@ def resolve_participant(phone=None, email=None):
     :raises ValueError: If neither phone nor email is provided.
     """
     if phone:
-        return Participant.objects.filter(phone=phone).first()
+        return Participant.objects.get_or_create(phone=phone)[0]
     if email:
-        return Participant.objects.filter(email=email).first()
-    if phone and email:
-        return Participant.objects.filter(phone=phone, email=email).first()
+        return Participant.objects.get_or_create(email=email)[0]
     raise ValueError("Either phone or email must be provided to resolve a participant.")
 
 
@@ -38,4 +36,4 @@ def resolve_conversation(participant_1, participant_2):
     conversations = sorted([participant_1.id, participant_2.id])
     return Conversation.objects.get_or_create(
         participant_1_id=conversations[0], participant_2_id=conversations[1]
-    )
+    )[0]

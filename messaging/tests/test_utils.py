@@ -29,13 +29,13 @@ def test_resolve_participant_by_phone_and_email(participant_1):
 def test_resolve_participant_non_existent_phone():
     participant = resolve_participant(phone="0000000000")
     print(participant)
-    assert participant is None
+    assert participant is not None
 
 
 @pytest.mark.django_db
 def test_resolve_participant_non_existent_email():
     participant = resolve_participant(email="foo@baz.com")
-    assert participant is None
+    assert participant is not None
 
 
 def test_resolve_participant_no_args_raises():
@@ -54,7 +54,7 @@ def test_resolve_participant_with_both_none():
 def test_resolve_conversation_symmetry(participant_1, participant_2):
     conv1 = resolve_conversation(participant_1, participant_2)
     conv2 = resolve_conversation(participant_2, participant_1)
-    assert conv1[0] == conv2[0]
+    assert conv1 == conv2
 
 
 @pytest.mark.django_db

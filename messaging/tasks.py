@@ -31,8 +31,8 @@ def send_message(self, message_id):
             ) 
         elif message.message_type in ['sms', 'mms']:
             provider = TextProvider(
-                to=message.recipient.phone_number,
-                _from=message.sender.phone_number,
+                to=message.recipient.phone,
+                _from=message.sender.phone,
                 _type=message.message_type,
                 body=message.body,
                 attachments=message.attachments or None
@@ -45,10 +45,10 @@ def send_message(self, message_id):
         
         provider.send_message()
         message.status = 'SENT'
+        message.save()
 
-    except Exception as exc:
-        self.retry(exc=exc, countdown=60)  # Retry after 60 seconds
+    except Exception as exc:  # Retry after 60 seconds
         message.status = 'FAILED'
         message.last_error = str(exc)
-    finally:
         message.save()
+        raise self.retry(exc=exc, countdown=60, )
