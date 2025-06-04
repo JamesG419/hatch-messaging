@@ -14,7 +14,6 @@ class TextProvider(MessagingProvider):
         self.type = _type
         self.body = body
         self.attachments = attachments
-        
 
     def send_message(self):
         """

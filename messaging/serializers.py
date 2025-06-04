@@ -49,6 +49,7 @@ class ConversationSerializer(serializers.ModelSerializer):
             "participant_2": {"required": True},
         }
 
+
 class MessageCreateSerializer(serializers.Serializer):
     sender = serializers.CharField(required=True)
     recipient = serializers.CharField(required=True)
@@ -61,15 +62,14 @@ class MessageCreateSerializer(serializers.Serializer):
     )
 
     def create(self, validated_data):
-        if validated_data['message_type'] in ['sms', 'mms']:
-            sender_contact = resolve_participant(phone=validated_data['sender'])
-            recipient_contact = resolve_participant(phone=validated_data['recipient'])
-        elif validated_data['message_type'] == 'email':
-            sender_contact = resolve_participant(email=validated_data['sender'])
-            recipient_contact = resolve_participant(email=validated_data['recipient'])
+        if validated_data["message_type"] in ["sms", "mms"]:
+            sender_contact = resolve_participant(phone=validated_data["sender"])
+            recipient_contact = resolve_participant(phone=validated_data["recipient"])
+        elif validated_data["message_type"] == "email":
+            sender_contact = resolve_participant(email=validated_data["sender"])
+            recipient_contact = resolve_participant(email=validated_data["recipient"])
         else:
             raise serializers.ValidationError("Unsupported message type")
-        
 
         conversation = resolve_conversation(sender_contact, recipient_contact)
 
@@ -77,11 +77,11 @@ class MessageCreateSerializer(serializers.Serializer):
             conversation=conversation,
             sender=sender_contact,
             recipient=recipient_contact,
-            message_type=validated_data['message_type'],
-            direction='outbound',
-            body=validated_data['body'],
-            attachments=validated_data.get('attachments'),
-            status='QUEUED',
-            timestamp=timezone.now()
+            message_type=validated_data["message_type"],
+            direction="outbound",
+            body=validated_data["body"],
+            attachments=validated_data.get("attachments"),
+            status="QUEUED",
+            timestamp=timezone.now(),
         )
         return message

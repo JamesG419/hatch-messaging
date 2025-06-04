@@ -6,7 +6,11 @@ from django.utils import timezone
 
 from .utils import resolve_participant, resolve_conversation
 from .models import Conversation, Message, Participant
-from .serializers import MessageSerializer, MessageCreateSerializer,ConversationSerializer
+from .serializers import (
+    MessageSerializer,
+    MessageCreateSerializer,
+    ConversationSerializer,
+)
 from .tasks import send_message
 
 # Create your views here.
@@ -37,52 +41,42 @@ class TextInboundWebhook(APIView):
             - 200 OK: Duplicate message detected.
             - 400 Bad Request: Missing required fields or invalid participant data.
     """
-    def post(self, request):
-        data  = request.data
 
-        reciever = data.get('to')
-        sender = data.get('from')
-        _type = data.get('type')
-        body = data.get('body')
-        message_id = data.get('messaging_provider_id')
+    def post(self, request):
+        data = request.data
+
+        reciever = data.get("to")
+        sender = data.get("from")
+        _type = data.get("type")
+        body = data.get("body")
+        message_id = data.get("messaging_provider_id")
         # Optional timestamp and attachments, may not always be provided
-        attachments = data.get('attachments')
-        timestamp_str = data.get('timestamp')
+        attachments = data.get("attachments")
+        timestamp_str = data.get("timestamp")
 
         if not all([reciever, sender, _type, body, message_id]):
             return Response(
-                {"error": "Missing required fields"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         # Parse the timestamp
         # Timestamp may not always be provided, so default to current time
         timestamp = parse_datetime(timestamp_str) if timestamp_str else timezone.now()
 
         # Prevent duplicate messages
         if Message.objects.filter(provider_message_id=message_id).exists():
-            return Response(
-                {"detail": "Duplicate message"},
-                status=status.HTTP_200_OK
-            )
-        
+            return Response({"detail": "Duplicate message"}, status=status.HTTP_200_OK)
+
         # Resolve participants by phone
         try:
             reciever_participant = resolve_participant(phone=reciever)
             sender_participant = resolve_participant(phone=sender)
         except ValueError as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         if not reciever_participant:
-            reciever_participant = Participant.objects.create(
-                phone=reciever
-            )
+            reciever_participant = Participant.objects.create(phone=reciever)
         if not sender_participant:
-            sender_participant = Participant.objects.create(
-                phone=sender
-            )
+            sender_participant = Participant.objects.create(phone=sender)
 
         # Create or get the conversation
         conversation, _ = resolve_conversation(reciever_participant, sender_participant)
@@ -93,19 +87,19 @@ class TextInboundWebhook(APIView):
             sender=sender_participant,
             recipient=reciever_participant,
             message_type=_type,
-            direction='inbound',
+            direction="inbound",
             body=body,
             provider_message_id=message_id,
             attachments=attachments,
-            status='RECIEVED',
-            timestamp=timestamp
+            status="RECIEVED",
+            timestamp=timestamp,
         )
 
         return Response(
-            {"detail": "Message received successfully"},
-            status=status.HTTP_201_CREATED
+            {"detail": "Message received successfully"}, status=status.HTTP_201_CREATED
         )
-    
+
+
 class EmailInboundWebhook(APIView):
     """
     APIView to handle inbound email webhooks.
@@ -126,52 +120,42 @@ class EmailInboundWebhook(APIView):
                 - 200 OK: If a duplicate message is detected.
                 - 400 Bad Request: If required fields are missing or participant resolution fails.
     """
-    def post(self, request):
-        data  = request.data
 
-        reciever = data.get('to')
-        sender = data.get('from')
-        _type = 'email'
-        body = data.get('body')
-        message_id = data.get('xillio_id')
+    def post(self, request):
+        data = request.data
+
+        reciever = data.get("to")
+        sender = data.get("from")
+        _type = "email"
+        body = data.get("body")
+        message_id = data.get("xillio_id")
         # Optional timestamp and attachments, may not always be provided
-        attachments = data.get('attachments')
-        timestamp_str = data.get('timestamp')
+        attachments = data.get("attachments")
+        timestamp_str = data.get("timestamp")
 
         if not all([reciever, sender, body, message_id]):
             return Response(
-                {"error": "Missing required fields"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         # Parse the timestamp
         # Timestamp may not always be provided, so default to current time
         timestamp = parse_datetime(timestamp_str) if timestamp_str else timezone.now()
 
         # Prevent duplicate messages
         if Message.objects.filter(provider_message_id=message_id).exists():
-            return Response(
-                {"detail": "Duplicate message"},
-                status=status.HTTP_200_OK
-            )
-        
+            return Response({"detail": "Duplicate message"}, status=status.HTTP_200_OK)
+
         # Resolve participants by phone
         try:
             reciever_participant = resolve_participant(email=reciever)
             sender_participant = resolve_participant(email=sender)
         except ValueError as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         if not reciever_participant:
-            reciever_participant = Participant.objects.create(
-                email=reciever
-            )
+            reciever_participant = Participant.objects.create(email=reciever)
         if not sender_participant:
-            sender_participant = Participant.objects.create(
-                email=sender
-            )
+            sender_participant = Participant.objects.create(email=sender)
 
         # Create or get the conversation
         conversation, _ = resolve_conversation(reciever_participant, sender_participant)
@@ -182,62 +166,66 @@ class EmailInboundWebhook(APIView):
             sender=sender_participant,
             recipient=reciever_participant,
             message_type=_type,
-            direction='inbound',
+            direction="inbound",
             body=body,
             provider_message_id=message_id,
             attachments=attachments,
-            status='RECIEVED',
-            timestamp=timestamp
+            status="RECIEVED",
+            timestamp=timestamp,
         )
 
         return Response(
-            {"detail": "Message received successfully"},
-            status=status.HTTP_201_CREATED
+            {"detail": "Message received successfully"}, status=status.HTTP_201_CREATED
         )
-    
+
+
 class MessageListView(generics.ListAPIView):
     """
     APIView to list messages.
     This view retrieves all messages and returns them in a paginated format.
     """
+
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+
 
 class MessageDetailView(generics.RetrieveAPIView):
     """
     APIView to retrieve a single message by ID.
     This view returns the details of a specific message.
     """
+
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
+
 
 class MessageDeleteView(generics.DestroyAPIView):
     """
     APIView to delete a message by ID.
     This view allows deletion of a specific message.
     """
+
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
+
 
 class MessageCreateView(generics.CreateAPIView):
     """
     APIView to create a new message.
     This view allows creation of a new message with the provided data.
     """
-    
+
     def post(self, request):
         serializer = MessageCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         message = serializer.save()
         # Trigger the message sending task
         send_message.delay(message.id)
-        return Response(
-            serializer.data,
-            status=status.HTTP_201_CREATED
-        )
-            
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 class ConversationListView(generics.ListAPIView):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
@@ -257,5 +245,7 @@ class ConversationMessagesView(generics.ListAPIView):
     serializer_class = MessageSerializer
 
     def get_queryset(self):
-        conversation_id = self.kwargs['conversation_id']
-        return Message.objects.filter(conversation_id=conversation_id).order_by('timestamp')
+        conversation_id = self.kwargs["conversation_id"]
+        return Message.objects.filter(conversation_id=conversation_id).order_by(
+            "timestamp"
+        )

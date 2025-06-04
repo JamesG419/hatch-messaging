@@ -9,18 +9,29 @@ from messaging.serializers import (
     MessageCreateSerializer,
 )
 
+
 @pytest.mark.django_db
 class TestMessageSerializer:
     def test_fields_and_readonly(self):
         serializer = MessageSerializer()
         fields = set(serializer.fields.keys())
         expected_fields = {
-            "id", "conversation", "sender", "recipient", "message_type",
-            "direction", "body", "attachments", "status", "last_error",
-            "timestamp", "created_at"
+            "id",
+            "conversation",
+            "sender",
+            "recipient",
+            "message_type",
+            "direction",
+            "body",
+            "attachments",
+            "status",
+            "last_error",
+            "timestamp",
+            "created_at",
         }
         assert fields == expected_fields
         assert set(serializer.Meta.read_only_fields) == {"id", "created_at"}
+
 
 @pytest.mark.django_db
 class TestConversationSerializer:
@@ -30,6 +41,7 @@ class TestConversationSerializer:
         expected_fields = {"id", "participant_1", "participant_2", "last_activity"}
         assert fields == expected_fields
         assert set(serializer.Meta.read_only_fields) == {"id", "last_activity"}
+
 
 @pytest.mark.django_db
 class TestMessageCreateSerializer:
@@ -60,7 +72,9 @@ class TestMessageCreateSerializer:
 
         mock_resolve_participant.assert_any_call(phone=data["sender"])
         mock_resolve_participant.assert_any_call(phone=data["recipient"])
-        mock_resolve_conversation.assert_called_once_with(sender_contact, recipient_contact)
+        mock_resolve_conversation.assert_called_once_with(
+            sender_contact, recipient_contact
+        )
         mock_message.objects.create.assert_called_once()
         assert message == mock_obj
 
@@ -90,7 +104,9 @@ class TestMessageCreateSerializer:
 
         mock_resolve_participant.assert_any_call(email=data["sender"])
         mock_resolve_participant.assert_any_call(email=data["recipient"])
-        mock_resolve_conversation.assert_called_once_with(sender_contact, recipient_contact)
+        mock_resolve_conversation.assert_called_once_with(
+            sender_contact, recipient_contact
+        )
         mock_message.objects.create.assert_called_once()
         assert message == mock_obj
 
