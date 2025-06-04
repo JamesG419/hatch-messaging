@@ -61,9 +61,9 @@ class Message(models.Model):
     """
 
     MESSAGE_TYPE_CHOICES = [
-        ("SMS", "SMS"),
-        ("MMS", "MMS"),
-        ("EMAIL", "Email"),
+        ("sms", "SMS"),
+        ("mms", "MMS"),
+        ("email", "Email"),
     ]
 
     DIRECTION_CHOICES = [
@@ -91,6 +91,9 @@ class Message(models.Model):
     )
     message_type = models.CharField(max_length=10, choices=MESSAGE_TYPE_CHOICES)
     direction = models.CharField(max_length=10, choices=DIRECTION_CHOICES)
+    provider_message_id = models.CharField(
+        max_length=100, unique=True, null=True, blank=True
+    )
     body = models.TextField()
 
     attachments = models.JSONField(null=True, blank=True)
