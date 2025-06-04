@@ -4,6 +4,7 @@ from rest_framework.test import APIRequestFactory
 from rest_framework import status
 from messaging.views import TextInboundWebhook
 from messaging.views import EmailInboundWebhook
+from messaging.views import MessageCreateView
 
 @pytest.fixture
 def api_factory():
@@ -174,3 +175,48 @@ def test_email_post_creates_participants_if_not_found(
     response = view(request)
     assert response.status_code == status.HTTP_201_CREATED
     assert mock_participant.objects.create.call_count == 2
+
+@pytest.fixture
+def valid_message_create_payload():
+    return {
+        "conversation": 1,
+        "sender": 1,
+        "recipient": 2,
+        "message_type": "text",
+        "direction": "outbound",
+        "body": "Test message",
+        "provider_message_id": "msg-999",
+        "attachments": None,
+        "status": "SENT",
+        "timestamp": "2024-06-01T12:00:00Z"
+    }
+
+@patch("messaging.views.send_message")
+@patch("messaging.views.MessageCreateSerializer")
+def test_message_create_view_success(mock_serializer_cls, mock_send_message, api_factory, valid_message_create_payload):
+    mock_serializer = MagicMock()
+    mock_serializer.is_valid.return_value = True
+    mock_serializer.save.return_value = MagicMock(id=123)
+    mock_serializer.data = valid_message_create_payload
+    mock_serializer_cls.return_value = mock_serializer
+
+    request = api_factory.post("/", valid_message_create_payload, format="json")
+    view = MessageCreateView.as_view()
+    response = view(request)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.data == valid_message_create_payload
+    mock_serializer.is_valid.assert_called_once_with(raise_exception=True)
+    mock_serializer.save.assert_called_once()
+    mock_send_message.delay.assert_called_once_with(123)
+
+@patch("messaging.views.MessageCreateSerializer")
+def test_message_create_view_invalid_data(mock_serializer_cls, api_factory, valid_message_create_payload):
+    mock_serializer = MagicMock()
+    mock_serializer.is_valid.side_effect = Exception("Invalid data")
+    mock_serializer_cls.return_value = mock_serializer
+
+    request = api_factory.post("/", valid_message_create_payload, format="json")
+    view = MessageCreateView.as_view()
+    with pytest.raises(Exception):
+        view(request)
+

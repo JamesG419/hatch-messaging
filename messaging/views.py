@@ -5,9 +5,8 @@ from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 
 from .utils import resolve_participant, resolve_conversation
-from .models import Message, Participant
+from .models import Conversation, Message, Participant
 from .serializers import MessageSerializer, MessageCreateSerializer,ConversationSerializer
-from django.shortcuts import get_object_or_404
 from .tasks import send_message
 
 # Create your views here.
@@ -239,3 +238,24 @@ class MessageCreateView(generics.CreateAPIView):
             status=status.HTTP_201_CREATED
         )
             
+class ConversationListView(generics.ListAPIView):
+    queryset = Conversation.objects.all()
+    serializer_class = ConversationSerializer
+
+
+class ConversationDetailView(generics.RetrieveAPIView):
+    queryset = Conversation.objects.all()
+    serializer_class = ConversationSerializer
+
+
+class ConversationDeleteView(generics.DestroyAPIView):
+    queryset = Conversation.objects.all()
+    serializer_class = ConversationSerializer
+
+
+class ConversationMessagesView(generics.ListAPIView):
+    serializer_class = MessageSerializer
+
+    def get_queryset(self):
+        conversation_id = self.kwargs['conversation_id']
+        return Message.objects.filter(conversation_id=conversation_id).order_by('timestamp')
