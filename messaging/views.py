@@ -1,11 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import generics, status
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 
 from .utils import resolve_participant, resolve_conversation
 from .models import Message, Participant
+from .serializers import MessageSerializer, ConversationSerializer
+from django.shortcuts import get_object_or_404
+from .tasks import send_message
 
 # Create your views here.
 
@@ -192,3 +195,6 @@ class EmailInboundWebhook(APIView):
             {"detail": "Message received successfully"},
             status=status.HTTP_201_CREATED
         )
+    
+class Messages(APIView):
+    pass
