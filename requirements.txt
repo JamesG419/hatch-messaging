@@ -6,3 +6,5 @@ celery[redis]
 pytest
 pytest-django
 black
+tenacity
+httpx
