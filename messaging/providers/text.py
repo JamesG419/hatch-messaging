@@ -32,7 +32,7 @@ class TextProvider(MessagingProvider):
                 "from": self._from,
                 "type": self.type,
                 "body": self.body,
-                "attachments": self._attachments,
+                "attachments": self.attachments,
                 "timestamp": self.get_current_timestamp(),
             }
             return self.send_request("POST", self.base_url, data)

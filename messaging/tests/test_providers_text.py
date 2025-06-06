@@ -30,10 +30,7 @@ def test_text_provider_initialization(text_provider):
 def test_send_message_calls_send_request(
     mock_timestamp, mock_send_request, text_provider
 ):
-    # Patch the attribute name if needed
-    # The code uses self._attachments, but __init__ sets self.attachments
-    # So, set _attachments for the test
-    text_provider._attachments = text_provider.attachments
+
 
     mock_send_request.return_value = {"status": "success"}
     response = text_provider.send_message()
@@ -59,8 +56,7 @@ def test_send_message_without_attachments(mock_timestamp, mock_send_request):
     provider = TextProvider(
         to="+11111111111", _from="+22222222222", _type="text", body="No attachments"
     )
-    # Patch _attachments to None for test consistency
-    provider._attachments = None
+
 
     mock_send_request.return_value = {"status": "ok"}
     response = provider.send_message()
